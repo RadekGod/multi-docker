@@ -1,8 +1,8 @@
-name: Deploy Frontend
+name: Deploy Application
 on:
   push:
     branches:
-      - main # check your repo, your default branch might be master!
+      - master # check your repo, your default branch might be master!
 
 jobs:
   build:
@@ -16,18 +16,22 @@ jobs:
       - run: docker build -t elorek/multi-nginx ./nginx
       - run: docker build -t elorek/multi-server ./server
       - run: docker build -t elorek/multi-worker ./worker
+      - run: docker push elorek/multi-client
+      - run: docker push elorek/multi-nginx
+      - run: docker push elorek/multi-server
+      - run: docker push elorek/multi-worker
 
-      - name: Generate deployment package
-        run: zip -r deploy.zip . -x '*.git*'
-
-      - name: Deploy to EB
-        uses: einaregilsson/beanstalk-deploy@v18
-        with:
-          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
-          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-          application_name: docker-gh
-          environment_name: Dockergh-env
-          existing_bucket_name: elasticbeanstalk-us-east-1-923445559289
-          region: us-east-1
-          version_label: ${{ github.sha }}
-          deployment_package: deploy.zip
+#      - name: Generate deployment package
+#        run: zip -r deploy.zip . -x '*.git*'
+#
+#      - name: Deploy to EB
+#        uses: einaregilsson/beanstalk-deploy@v18
+#        with:
+#          aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
+#          aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
+#          application_name: docker-gh
+#          environment_name: Dockergh-env
+#          existing_bucket_name: elasticbeanstalk-us-east-1-923445559289
+#          region: us-east-1
+#          version_label: ${{ github.sha }}
+#          deployment_package: deploy.zip
